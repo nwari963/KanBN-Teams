@@ -20,6 +20,7 @@ A running, branded **OTSICAL** stack on the studio laptop: Kan (LAN-reachable at
 
 ## Decisions so far
 
+- [Cal.diy alternatives verdict](./tickets/010-cal-alternatives.md): **keep Cal.diy** — only candidate with booking webhooks (bridge arch A); ARM64 miss is one-time build pain; fallback Cal.com CE `-arm` image; revisit → LibreBooking if room-inventory conflict checking becomes hard. See `docs/research/cal-alternatives.md`.
 - [Stand up Outline service](./tickets/009-stand-up-outline.md): Outline live and healthy at `:3458`, Dex OIDC healthy at `:3459/dex`; Postgres 16 + Redis + local attachments; credentials remain local.
 - [Outline self-host footprint](./tickets/008-outline-footprint.md): 4 containers (outline+pg+redis+dex, port 3458), local file storage, no SMTP; Dex static-password OIDC is the only offline auth; ARM64 confirmed; ~550MB RAM idle.
 - [002] Cal bookings → Kan: use Cal webhook → small receiver → Kan REST `POST /api/v1/cards` (API key). Skip MCP and direct DB writes. See `docs/research/cal-diy-integration.md`.

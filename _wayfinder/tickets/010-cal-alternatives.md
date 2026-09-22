@@ -1,6 +1,6 @@
 ---
 type: wayfinder-ticket
-status: open
+status: closed
 labels: [wayfinder:research]
 blocked_by: []
 ---
@@ -15,3 +15,8 @@ Verified baselines: docs/research/cal-diy-selfhost.md, cal-diy-integration.md. T
 
 ## Required outcome
 Cited docs/research/cal-alternatives.md replacing the placeholder, with a keep-or-switch verdict; close this ticket with the summary.
+
+
+## Resolution
+Verified comparison at `docs/research/cal-alternatives.md` (registry-arch checks re-verified live: cal.com `-arm` tags arm64-only as documented; Easy!Appointments and LibreBooking current tags multi-arch arm64; official MRBS GHCR image single-arch amd64; cal.diy Hub repo still 0 tags).
+**Verdict: keep Cal.diy.** Push webhooks are the deciding criterion for the Kan bridge (ticket 002 architecture A) — every alternative forces polling or has no API. Cal.diy's ARM64 miss is a one-time 20–45 min source build. Documented fallback: Cal.com CE upstream `v6.2.0-arm` image (arm64, zero build, same webhooks) if the build cost becomes unacceptable. Revisit trigger: room-inventory conflict checking becomes a hard requirement → LibreBooking.

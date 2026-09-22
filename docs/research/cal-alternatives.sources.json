@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 1,
+      "url": "https://github.com/calcom/cal.diy",
+      "title": "Cal.diy repository",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 2,
+      "url": "https://hub.docker.com/v2/repositories/calcom/cal.diy/tags?page_size=10",
+      "title": "Cal.diy Docker Hub tags API",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 3,
+      "url": "https://hub.docker.com/v2/repositories/calcom/cal.com/tags?page_size=10",
+      "title": "Cal.com Docker Hub tags API",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 4,
+      "url": "https://cal.com/docs/developing/guides/automation/webhooks",
+      "title": "Cal.com webhooks documentation",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 5,
+      "url": "https://github.com/alextselegidis/easyappointments",
+      "title": "Easy!Appointments repository",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 6,
+      "url": "https://github.com/alextselegidis/easyappointments/blob/main/openapi.yml",
+      "title": "Easy!Appointments OpenAPI",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 7,
+      "url": "https://hub.docker.com/r/alextselegidis/easyappointments",
+      "title": "Easy!Appointments Docker image",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 8,
+      "url": "https://github.com/LibreBooking/librebooking",
+      "title": "LibreBooking repository",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 9,
+      "url": "https://github.com/LibreBooking/docker/blob/master/BUILD.md",
+      "title": "LibreBooking image build/pull documentation",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 10,
+      "url": "https://github.com/LibreBooking/librebooking/blob/develop/docs/source/API.rst",
+      "title": "LibreBooking API documentation",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 11,
+      "url": "https://github.com/LibreBooking/librebooking/blob/develop/docs/source/CUSTOM-PLUGINS.rst",
+      "title": "LibreBooking plugin hooks",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 12,
+      "url": "https://hub.docker.com/v2/repositories/librebooking/librebooking/tags?page_size=10",
+      "title": "LibreBooking Docker Hub tags API",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 13,
+      "url": "https://github.com/meeting-room-booking-system/mrbs-code",
+      "title": "MRBS repository",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 14,
+      "url": "https://github.com/meeting-room-booking-system/mrbs-code/blob/main/AUTHENTICATION",
+      "title": "MRBS authentication documentation",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 15,
+      "url": "https://github.com/meeting-room-booking-system/mrbs-code/blob/main/.github/workflows/docker-image.yml",
+      "title": "MRBS image workflow",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 16,
+      "url": "https://github.com/lukevella/rallly",
+      "title": "Rallly repository",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 17,
+      "url": "https://support.rallly.co/self-hosting/installation",
+      "title": "Rallly self-hosting installation",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 18,
+      "url": "https://support.rallly.co/self-hosting/licensing",
+      "title": "Rallly self-hosting licensing",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 19,
+      "url": "https://github.com/lukevella/rallly-selfhosted/blob/main/docker-compose.yml",
+      "title": "Rallly self-hosted Compose",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 20,
+      "url": "https://github.com/Kozea/Radicale",
+      "title": "Radicale repository",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 21,
+      "url": "https://radicale.org/v3.html",
+      "title": "Radicale documentation",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 22,
+      "url": "https://github.com/Kozea/Radicale/pkgs/container/radicale",
+      "title": "Radicale container package",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 23,
+      "url": "https://github.com/sabre-io/Baikal",
+      "title": "Baikal repository",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 24,
+      "url": "https://hub.docker.com/r/ckulka/baikal",
+      "title": "Baikal community Docker image",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 25,
+      "url": "https://github.com/calcom/cal.com/blob/main/LICENSE",
+      "title": "Cal.com license",
+      "accessed": "2026-09-21"
+    }
+  ]
+}
