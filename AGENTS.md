@@ -331,3 +331,17 @@ Update all of the following:
 - Provide clear description of changes
 - Include screenshots for UI changes
 - Keep PRs focused on a single feature/fix
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues (`nwari963/KanBN-Teams`), operated via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-label vocabulary: needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
