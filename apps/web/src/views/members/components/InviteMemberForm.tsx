@@ -213,7 +213,19 @@ export function InviteMemberForm({
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(inviteLink);
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(inviteLink);
+      } else {
+        // ponytail: execCommand fallback for plain-HTTP LAN origins (clipboard API is secure-context-only); remove if the stack ever moves behind HTTPS.
+        const textarea = document.createElement("textarea");
+        textarea.value = inviteLink;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       showPopup({
