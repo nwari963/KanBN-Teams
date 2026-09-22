@@ -9,6 +9,8 @@ Project glossary and settled decisions. Single-context repo.
 - **Role** — `admin | member | guest` (legacy enum) plus `workspaceRoles`/`workspace_member_permissions` for granular permissions (schema: `packages/db/src/schema/permissions.ts`).
 - **Invite link** — shareable URL from `workspaceInviteLinks`; created/deactivated/accepted via `packages/api/src/routers/member.ts`. Preferred teammate onboarding (no SMTP configured).
 - **Board** — a project. Visibility is public (workspace) or private (role-gated).
+- **List color** — an optional color chosen from the shared studio palette; visually colors the full list column.
+- **Card color** — an optional color chosen from the shared studio palette; visually colors the full card surface. It is independent of labels.
 - **Guest** — restricted role; use for teammates limited to specific private boards.
 
 ## Settled decisions

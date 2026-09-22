@@ -20,6 +20,7 @@ A running, branded **OTSICAL** stack on the studio laptop: Kan (LAN-reachable at
 
 ## Decisions so far
 
+- [Studio tailoring v1 scope](./tickets/004-tailoring-scope.md): three studio board templates; visible OTSICAL branding; manual DMG updates; colors use existing eight-color palette with soft-surface + strong-accent tokens; optional full-surface list/card colors are independent of labels and require `/to-spec`.
 - [Verify Kan LAN stack and onboard first teammate](./tickets/003-verify-kan-onboard.md): Kan live + admin account created (verified in DB); invite-link onboarding deferred to tailoring (SMTP off, invite links upstream-gated).
 - [Cal.diy alternatives verdict](./tickets/010-cal-alternatives.md): **keep Cal.diy** — only candidate with booking webhooks (bridge arch A); ARM64 miss is one-time build pain; fallback Cal.com CE `-arm` image; revisit → LibreBooking if room-inventory conflict checking becomes hard. See `docs/research/cal-alternatives.md`.
 - [Stand up Outline service](./tickets/009-stand-up-outline.md): Outline live and healthy at `:3458`, Dex OIDC healthy at `:3459/dex`; Postgres 16 + Redis + local attachments; credentials remain local.
@@ -32,7 +33,6 @@ A running, branded **OTSICAL** stack on the studio laptop: Kan (LAN-reachable at
 - [Cal.diy self-host footprint](./tickets/001-cal-diy-footprint.md)
 - [Cal.diy-OTSICAL integration surface](./tickets/002-integration-surface.md)
 - [Verify Kan LAN stack and onboard first teammate](./tickets/003-verify-kan-onboard.md)
-- [Studio tailoring v1 scope](./tickets/004-tailoring-scope.md)
 - [Integration contract: bookings to boards](./tickets/006-integration-contract.md)
 - [Stand up Cal.diy service](./tickets/007-stand-up-cal.md) *(unblocked: research done)*
 
