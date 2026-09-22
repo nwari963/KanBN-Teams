@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 1,
+      "url": "https://www.getoutline.com/developers",
+      "title": "Outline API documentation",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 2,
+      "url": "https://www.getoutline.com/pricing",
+      "title": "Outline pricing (cloud plans; self-host free under BUSL)",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 3,
+      "url": "https://docs.hedgedoc.org/dev/api",
+      "title": "HedgeDoc API documentation",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 4,
+      "url": "https://hedgedoc.org",
+      "title": "HedgeDoc homepage",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 5,
+      "url": "https://developers.dropbox.com/paper-migration-guide",
+      "title": "Dropbox Paper migration guide",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 6,
+      "url": "https://www.notion.com/help/understanding-block-usage",
+      "title": "Notion block usage (free plan limit)",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 7,
+      "url": "https://developers.notion.com/reference/request-limits",
+      "title": "Notion API request limits",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 8,
+      "url": "https://developers.notion.com/reference/workspace-block-limits",
+      "title": "Notion API workspace block limits",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 9,
+      "url": "https://trello.com/pricing",
+      "title": "Trello pricing",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 10,
+      "url": "https://developer.atlassian.com/cloud/trello/guides/rest-api/webhooks",
+      "title": "Trello webhooks guide",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 11,
+      "url": "https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects",
+      "title": "GitHub Projects API",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 12,
+      "url": "https://freealternatives.to/anytype/review",
+      "title": "Anytype review: free tier, no web app/API",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 13,
+      "url": "https://appflowy.com/docs/Self-hosted-Plans-and-Pricing",
+      "title": "AppFlowy self-hosted plans and pricing",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 14,
+      "url": "https://affine.pro/pricing",
+      "title": "AFFiNE pricing / self-host",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 15,
+      "url": "https://developers.google.com/workspace/docs/api/reference/rest/v1/documents/batchUpdate",
+      "title": "Google Docs API batchUpdate",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 16,
+      "url": "https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/batchUpdate",
+      "title": "Google Sheets API batchUpdate",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 17,
+      "url": "https://help.dropbox.com/view-edit/paper-export-docs",
+      "title": "Dropbox Paper export formats",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 18,
+      "url": "https://alternativeto.net/news/2025/9/dropbox-will-discontinue-its-paper-mobile-app-for-ios-and-android-next-month",
+      "title": "Dropbox Paper mobile app discontinuation",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 19,
+      "url": "https://usecarly.com/blog/trello-free-plan-limits",
+      "title": "Trello free plan limits (10 boards/10 collaborators)",
+      "accessed": "2026-09-21"
+    },
+    {
+      "id": 20,
+      "url": "https://github.com/outline/openapi/blob/main/spec3.yml",
+      "title": "Outline OpenAPI spec",
+      "accessed": "2026-09-21"
+    }
+  ]
+}

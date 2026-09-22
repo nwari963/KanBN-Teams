@@ -1,0 +1,27 @@
+issuer: http://MacBook-Pro-de-Angelo.local:3459/dex
+
+storage:
+  type: sqlite3
+  config:
+    file: /var/dex/dex.db
+
+web:
+  http: 0.0.0.0:5556
+
+staticClients:
+  - id: otsical-outline
+    redirectURIs:
+      - http://MacBook-Pro-de-Angelo.local:3458/auth/oidc.callback
+    name: OTSICAL Outline
+    secretEnv: DEX_STATIC_CLIENT_SECRET
+
+enablePasswordDB: true
+
+staticPasswords:
+  - email: "nwari@otsical.local"
+    hash: "<bcrypt-hash>"
+    username: "nwari"
+    userID: "<uuid>"
+
+oauth2:
+  skipApprovalScreen: true

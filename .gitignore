@@ -63,4 +63,12 @@ i18n.cache
 # local scripts
 scripts/
 
-.claude
+.claude.env.outline
+
+# Local build/runtime artifacts
+desktop-wrapper/target/
+.paper-sync/
+.env.outline
+
+# Local generated authentication configuration
+dex/config.local.yaml
