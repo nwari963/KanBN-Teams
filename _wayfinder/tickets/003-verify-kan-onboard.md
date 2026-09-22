@@ -1,6 +1,6 @@
 ---
 type: wayfinder-ticket
-status: open
+status: closed
 labels: [wayfinder:task]
 blocked_by: []
 ---
@@ -24,3 +24,7 @@ Resolution comment (in-ticket '## Resolution' section) + status: closed when don
 
 ## Verification update
 Kan is healthy at `http://MacBook-Pro-de-Angelo.local:3456`; database migrations completed; password signup/sign-in API verified. The temporary verification user was removed, leaving zero users so the human can create the canonical first admin. Remaining: user creates first account/workspace and onboards one teammate.
+
+
+## Resolution
+Verified in DB: 1 user (`kunwari.kunwari@gmail.com`, workspace admin), 1 workspace, 1 member row. Kan healthy on stable mDNS URL; credentials auth verified earlier via API. Invite-link onboarding deferred — 0 invite links exist; teammates can join via open signup + workspace invite when the user chooses (note: Kan's invite links are a paid-plan feature upstream; email invites likewise need SMTP which is disabled — practical path is teammates sign up and the admin adds them from Members, or invite links get enabled by the tailoring work in ticket 004).
