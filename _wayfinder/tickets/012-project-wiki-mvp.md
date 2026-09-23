@@ -26,8 +26,8 @@ Hand the OTSICAL team a working Kan-to-Outline Project Wiki flow. A teammate can
 
 ### 1. Prepare the target environment
 
-- [ ] Confirm the Kan and Outline URLs and the database to receive the migration.
-- [ ] Confirm a recoverable database backup exists before migration.
+- [x] Confirm the local Kan target (`kan_db`) and service state; Kan responds on `:3456` and Outline responds on `:3458` after being recreated from the current compose file.
+- [x] Create owner-only local backups of the Kan and Outline databases before migration or Outline startup.
 - [ ] Confirm Kan has valid `OUTLINE_URL`, `OUTLINE_API_KEY`, and `OUTLINE_COLLECTION_ID` values. Verify presence and access without recording secrets in this ticket.
 - [ ] Confirm the intended teammate can sign in to both Kan and Outline.
 
@@ -35,12 +35,23 @@ Hand the OTSICAL team a working Kan-to-Outline Project Wiki flow. A teammate can
 
 ### 2. Apply and review template identity migration
 
-- [ ] Apply `packages/db/migrations/20260923145321_AddBoardTemplateIdentity.sql` to a development/test database first.
-- [ ] Review `board_template_identity_migration_report`: confirm the expected canonical Art, Software, and Production templates are classified; account for skipped unsupported templates, wrong list structures, and duplicate matches.
-- [ ] If any expected canonical template is missing or classified unexpectedly, stop and resolve the template data before migrating the studio database.
+- [x] Apply `packages/db/migrations/20260923145321_AddBoardTemplateIdentity.sql` to a development/test clone first.
+- [x] Review `board_template_identity_migration_report`: the clone found one active template, skipped as `unsupported-name`, and classified none of the supported identities.
+- [x] Stop before migrating the studio database because the canonical Art, Software, and Production templates are not present in the current Kan database.
 - [ ] Apply the migration to the studio database and review its report using the same checks.
 
 **Exit check:** the studio database has one intended canonical template for each supported identity, and all rejected/skipped records are understood.
+
+## Progress log
+
+### 2026-09-23 — Environment preflight
+
+- Kan and its local Postgres database are running. A local backup was created and restored to `kan_db_template_identity_test`; the new migration applied successfully to that clone.
+- The test report classified no supported identities. The current database has one unrelated active template, so the migration was not applied to the studio database.
+- The disposable test clone was removed after report review; the owner-only local backup remains available for the next migration attempt.
+- The Outline container had an obsolete broken bind mount. It was recreated from `docker-compose.outline.yml` after backing up its database; `http://localhost:3458` now returns HTTP 200.
+- The running Kan container is missing `OUTLINE_URL`, `OUTLINE_API_KEY`, and `OUTLINE_COLLECTION_ID`. The Outline application also still needs its collection and API key configured for Kan.
+- No teammate sign-in or Project Wiki end-to-end test has been completed.
 
 ### 3. Verify the end-to-end Project Wiki flow
 
