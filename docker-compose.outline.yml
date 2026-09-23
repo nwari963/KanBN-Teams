@@ -28,7 +28,7 @@ services:
       - OIDC_SCOPES=openid profile email
     volumes:
       - outline-data:/var/lib/outline/data
-      - ./dex/config.local.yaml:/etc/dex/config.yaml:ro
+      - ./dex/config.local.yaml:/etc/dex/config.docker.yaml:ro
     depends_on:
       outline-postgres:
         condition: service_healthy
@@ -71,7 +71,7 @@ services:
       - DEX_KAN_CLIENT_SECRET=${DEX_KAN_CLIENT_SECRET}
       - LLDAP_LDAP_USER_PASS=${LLDAP_LDAP_USER_PASS}
     volumes:
-      - ./dex/config.local.yaml:/etc/dex/config.yaml:ro
+      - ./dex/config.local.yaml:/etc/dex/config.docker.yaml:ro
     healthcheck:
       test: ["CMD-SHELL", "wget -q -O - http://localhost:5556/dex/healthz || exit 1"]
       interval: 10s
@@ -80,7 +80,7 @@ services:
     restart: unless-stopped
 
   lldap:
-    image: lldap/lldap:2026-08-28
+    image: ghcr.io/lldap/lldap:2026-07-19-debian
     container_name: otsical-lldap
     ports:
       - "3460:17170"
