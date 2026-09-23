@@ -53,6 +53,20 @@ Hand the OTSICAL team a working Kan-to-Outline Project Wiki flow. A teammate can
 - The running Kan container is missing `OUTLINE_URL`, `OUTLINE_API_KEY`, and `OUTLINE_COLLECTION_ID`. The Outline application also still needs its collection and API key configured for Kan.
 - No teammate sign-in or Project Wiki end-to-end test has been completed.
 
+## Human handoff — next actions
+
+The implementation is ready for environment setup; release verification is waiting on these operator steps:
+
+1. In Kan, create the three canonical templates through the normal app interface:
+   - `Art`: Sketch → Blockout → Render → Review → Done
+   - `Software`: Backlog → Doing → Review → Done
+   - `Production`: Planned → Booked → Captured → Editing → Delivered
+2. In Outline, create/select the Project Wiki collection and generate an API key for Kan.
+3. Set `OUTLINE_URL`, `OUTLINE_API_KEY`, and `OUTLINE_COLLECTION_ID` in the local Kan environment, then restart Kan. Keep secret values in ignored local config; do not paste them into this ticket or commit them.
+4. Confirm the intended teammate can sign in to Kan and Outline.
+
+Resume here when the templates exist and Kan has the three integration settings. First take a fresh Kan database backup, apply the migration, and inspect its report; continue to end-to-end verification only if each supported identity is classified as expected. The disposable-clone check passed, but the clone predates the canonical templates. Avoid direct SQL seeding of live templates.
+
 ### 3. Verify the end-to-end Project Wiki flow
 
 Run the flow from Kan as the intended teammate, once for each supported template identity:
