@@ -76,6 +76,25 @@ importers:
       mintlify:
         specifier: ^3.0.0
         version: 3.0.98
+    devDependencies:
+      '@kan/eslint-config':
+        specifier: workspace:*
+        version: link:../../tooling/eslint
+      '@kan/prettier-config':
+        specifier: workspace:*
+        version: link:../../tooling/prettier
+      '@kan/tsconfig':
+        specifier: workspace:*
+        version: link:../../tooling/typescript
+      eslint:
+        specifier: 'catalog:'
+        version: 9.34.0(jiti@2.6.1)
+      prettier:
+        specifier: 'catalog:'
+        version: 3.6.2
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.2
 
   apps/web:
     dependencies:

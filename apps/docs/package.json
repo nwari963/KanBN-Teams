@@ -15,5 +15,13 @@
   "dependencies": {
     "mintlify": "^3.0.0"
   },
+  "devDependencies": {
+    "@kan/eslint-config": "workspace:*",
+    "@kan/prettier-config": "workspace:*",
+    "@kan/tsconfig": "workspace:*",
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:"
+  },
   "prettier": "@kan/prettier-config"
 }
