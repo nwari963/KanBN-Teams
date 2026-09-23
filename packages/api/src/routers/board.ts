@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import type { BoardTemplateIdentity } from "@kan/db/schema";
 import * as boardRepo from "@kan/db/repository/board.repo";
 import * as cardRepo from "@kan/db/repository/card.repo";
 import * as activityRepo from "@kan/db/repository/cardActivity.repo";
@@ -33,31 +34,15 @@ import {
 
 const log = createLogger("board");
 
-const SUPPORTED_STUDIO_TEMPLATE_NAMES = new Set([
-  "art",
-  "software",
-  "softwaredevelopment",
-  "production",
-  "productionshoot",
-]);
-
-const isSupportedStudioTemplate = (name: string) =>
-  SUPPORTED_STUDIO_TEMPLATE_NAMES.has(
-    name
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, ""),
-  );
-
 const attachProjectWiki = async (
   db: Parameters<typeof boardRepo.getByPublicId>[0],
   userId: string,
   workspace: { id: number; slug: string },
   board: { publicId: string; name: string },
-  sourceTemplateName?: string,
+  templateIdentity?: BoardTemplateIdentity | null,
   details?: Awaited<ReturnType<typeof boardRepo.getByPublicId>>,
 ) => {
-  if (!sourceTemplateName || !isSupportedStudioTemplate(sourceTemplateName))
+  if (!templateIdentity)
     return { ...board, wiki: { status: "disabled" as const } };
 
   const boardDetails =
@@ -488,6 +473,10 @@ export const boardRouter = createTRPCRouter({
           name: input.name,
           type: input.type ?? "regular",
           sourceBoardId: sourceBoardInfo.id,
+          templateIdentity:
+            input.type === "template"
+              ? undefined
+              : (sourceBoardInfo.templateIdentity ?? undefined),
         });
 
         return attachProjectWiki(
@@ -495,7 +484,9 @@ export const boardRouter = createTRPCRouter({
           userId,
           workspace,
           result,
-          sourceBoardInfo.type === "template" ? sourceBoard.name : undefined,
+          input.type === "template"
+            ? undefined
+            : sourceBoardInfo.templateIdentity,
         );
       }
 
@@ -596,7 +587,7 @@ export const boardRouter = createTRPCRouter({
         });
       }
 
-      if (!board.sourceBoardId) {
+      if (board.type !== "regular" || !board.templateIdentity) {
         return {
           publicId: details.publicId,
           name: details.name,
@@ -604,17 +595,12 @@ export const boardRouter = createTRPCRouter({
         };
       }
 
-      const sourceTemplate = await boardRepo.getProjectWikiSource(
-        ctx.db,
-        board.sourceBoardId,
-      );
-
       return attachProjectWiki(
         ctx.db,
         userId,
         workspace,
         { publicId: details.publicId, name: details.name },
-        sourceTemplate?.name,
+        board.templateIdentity,
         details,
       );
     }),

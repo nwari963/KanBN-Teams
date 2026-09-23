@@ -13,7 +13,10 @@ import {
 } from "drizzle-orm";
 
 import type { dbClient } from "@kan/db/client";
-import type { BoardVisibilityStatus } from "@kan/db/schema";
+import type {
+  BoardTemplateIdentity,
+  BoardVisibilityStatus,
+} from "@kan/db/schema";
 import {
   boards,
   cardActivities,
@@ -106,6 +109,7 @@ export const getIdByPublicId = async (db: dbClient, boardPublicId: string) => {
       id: true,
       type: true,
       isArchived: true,
+      templateIdentity: true,
     },
     where: eq(boards.publicId, boardPublicId),
   });
@@ -609,6 +613,7 @@ export const create = async (
     slug: string;
     type?: "regular" | "template";
     sourceBoardId?: number;
+    templateIdentity?: BoardTemplateIdentity;
   },
 ) => {
   const [result] = await db
@@ -622,6 +627,7 @@ export const create = async (
       slug: boardInput.slug,
       type: boardInput.type ?? "regular",
       sourceBoardId: boardInput.sourceBoardId,
+      templateIdentity: boardInput.templateIdentity,
     })
     .returning({
       id: boards.id,
@@ -723,23 +729,12 @@ export const getWorkspaceAndBoardIdByBoardPublicId = async (
       createdBy: true,
       type: true,
       sourceBoardId: true,
+      templateIdentity: true,
     },
     where: eq(boards.publicId, boardPublicId),
   });
 
   return result;
-};
-
-export const getProjectWikiSource = async (db: dbClient, boardId: number) => {
-  const board = await db.query.boards.findFirst({
-    columns: {
-      type: true,
-      name: true,
-    },
-    where: eq(boards.id, boardId),
-  });
-
-  return board;
 };
 
 /**
@@ -821,6 +816,7 @@ export const createFromSnapshot = async (
     name?: string;
     type: "regular" | "template";
     sourceBoardId?: number;
+    templateIdentity?: BoardTemplateIdentity;
   },
 ) => {
   return db.transaction(async (tx) => {
@@ -834,6 +830,7 @@ export const createFromSnapshot = async (
         workspaceId: args.workspaceId,
         type: args.type,
         sourceBoardId: args.sourceBoardId,
+        templateIdentity: args.templateIdentity,
       })
       .returning({
         id: boards.id,
