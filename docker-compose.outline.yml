@@ -36,6 +36,8 @@ services:
         condition: service_started
       dex:
         condition: service_healthy
+      lldap:
+        condition: service_started
     restart: unless-stopped
 
   outline-postgres:
@@ -66,6 +68,8 @@ services:
       - "3459:5556"
     environment:
       - DEX_STATIC_CLIENT_SECRET=${DEX_STATIC_CLIENT_SECRET}
+      - DEX_KAN_CLIENT_SECRET=${DEX_KAN_CLIENT_SECRET}
+      - LLDAP_LDAP_USER_PASS=${LLDAP_LDAP_USER_PASS}
     volumes:
       - ./dex/config.local.yaml:/etc/dex/config.yaml:ro
     healthcheck:
@@ -75,6 +79,28 @@ services:
       retries: 10
     restart: unless-stopped
 
+  lldap:
+    image: lldap/lldap:2026-08-28
+    container_name: otsical-lldap
+    ports:
+      - "3460:17170"
+    environment:
+      - LLDAP_LDAP_HOST=0.0.0.0
+      - LLDAP_LDAP_PORT=3890
+      - LLDAP_HTTP_HOST=0.0.0.0
+      - LLDAP_HTTP_PORT=17170
+      - LLDAP_HTTP_URL=${LLDAP_HTTP_URL}
+      - LLDAP_JWT_SECRET=${LLDAP_JWT_SECRET}
+      - LLDAP_KEY_SEED=${LLDAP_KEY_SEED}
+      - LLDAP_LDAP_BASE_DN=${LLDAP_LDAP_BASE_DN}
+      - LLDAP_LDAP_USER_DN=admin
+      - LLDAP_LDAP_USER_PASS=${LLDAP_LDAP_USER_PASS}
+      - LLDAP_DATABASE_URL=sqlite:///data/users.db?mode=rwc
+    volumes:
+      - lldap-data:/data
+    restart: unless-stopped
+
 volumes:
   outline-data:
   outline-postgres-data:
+  lldap-data:
