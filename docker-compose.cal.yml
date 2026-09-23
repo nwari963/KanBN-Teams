@@ -1,0 +1,31 @@
+# OTSICAL — Cal.diy stack (wayfinder ticket 007)
+# Minimal: db + web only. No redis / api-v2 / always-on studio (see docs/research/cal-diy-selfhost.md).
+# Source: calcom/cal.diy @ 54343aa (clone kept out of this repo; image caldiy:local built once from its Dockerfile).
+services:
+  cal-diy-db:
+    image: postgres:16-alpine
+    restart: always
+    env_file: .env.cal
+    environment:
+      - POSTGRES_USER=cal
+      - POSTGRES_DB=calendso
+    volumes:
+      - cal-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cal -d calendso"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  cal-diy:
+    image: caldiy:local
+    restart: always
+    ports:
+      - "3457:3000"
+    env_file: .env.cal
+    depends_on:
+      cal-diy-db:
+        condition: service_healthy
+
+volumes:
+  cal-db-data:
