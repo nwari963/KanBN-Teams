@@ -211,6 +211,9 @@ pnpm dev
 | `NEXT_PUBLIC_ATTACHMENTS_BUCKET_NAME`     | S3 bucket name for attachments                            | For file uploads                            | `attachments`                                               |
 | `NEXT_PUBLIC_ALLOW_CREDENTIALS`           | Allow email & password login                              | For authentication                          | `true`                                                      |
 | `NEXT_PUBLIC_DISABLE_SIGN_UP`             | Disable sign up                                           | For authentication                          | `false`                                                     |
+| `OUTLINE_URL`                             | Outline base URL for Project Wiki integration             | No                                           | `http://localhost:3458`                                     |
+| `OUTLINE_API_KEY`                         | Outline API key                                           | For Project Wiki integration                 | `ol_api_xxx`                                                |
+| `OUTLINE_COLLECTION_ID`                   | Outline collection receiving Project Wiki documents       | For Project Wiki integration                 | `collection-id`                                             |
 | `NEXT_PUBLIC_WHITE_LABEL_HIDE_POWERED_BY` | Hide “Powered by otsical.studio” on public boards (self-host)     | For white labelling                         | `true`                                                      |
 | `KAN_ADMIN_API_KEY`                       | Admin API key for stats and admin endpoints               | For admin/monitoring                        | `your-secret-admin-key`                                     |
 | `LOG_LEVEL`                               | Log verbosity level (debug, info, warn, error)            | No (defaults to debug in dev, info in prod) | `info`                                                      |

@@ -80,6 +80,9 @@ export const env = createEnv({
     S3_FORCE_PATH_STYLE: z.string().optional(),
     EMAIL_FROM: z.string().optional(),
     REDIS_URL: z.string().url().optional().or(z.literal("")),
+    OUTLINE_URL: z.string().url().optional(),
+    OUTLINE_API_KEY: z.string().optional(),
+    OUTLINE_COLLECTION_ID: z.string().optional(),
   },
 
   /**

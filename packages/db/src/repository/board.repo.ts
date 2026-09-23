@@ -721,11 +721,25 @@ export const getWorkspaceAndBoardIdByBoardPublicId = async (
       id: true,
       workspaceId: true,
       createdBy: true,
+      type: true,
+      sourceBoardId: true,
     },
     where: eq(boards.publicId, boardPublicId),
   });
 
   return result;
+};
+
+export const getProjectWikiSource = async (db: dbClient, boardId: number) => {
+  const board = await db.query.boards.findFirst({
+    columns: {
+      type: true,
+      name: true,
+    },
+    where: eq(boards.id, boardId),
+  });
+
+  return board;
 };
 
 /**

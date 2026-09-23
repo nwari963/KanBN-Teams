@@ -123,6 +123,16 @@ export const boardBySlugSchema = z.object({
 export const boardCreateResponseSchema = z.object({
   publicId: z.string(),
   name: z.string(),
+  wiki: z
+    .union([
+      z.object({ status: z.literal("disabled") }),
+      z.object({
+        status: z.literal("created"),
+        url: z.string().url(),
+      }),
+      z.object({ status: z.literal("failed"), message: z.string() }),
+    ])
+    .optional(),
 });
 
 // ─── board.update ────────────────────────────────────────────

@@ -89,6 +89,30 @@ export default function BoardDropdown({
     });
   };
 
+  const ensureProjectWiki = api.board.ensureProjectWiki.useMutation({
+    onSuccess: (result) => {
+      showPopup({
+        header:
+          result.wiki?.status === "created"
+            ? t`Project Wiki ready`
+            : t`Project Wiki unavailable`,
+        message:
+          result.wiki?.status === "created"
+            ? t`The Project Wiki card is available on this board.`
+            : t`Project Wiki creation failed. Check the Outline configuration and try again.`,
+        icon: result.wiki?.status === "created" ? "success" : "error",
+      });
+      void utils.board.byId.invalidate();
+    },
+    onError: () => {
+      showPopup({
+        header: t`Unable to create Project Wiki`,
+        message: t`Please check the Outline configuration and try again.`,
+        icon: "error",
+      });
+    },
+  });
+
   const isArchiveActionPending = updateBoard.isPending;
 
   const items = [
@@ -97,6 +121,17 @@ export default function BoardDropdown({
           {
             label: t`Make template`,
             action: () => openModal("CREATE_TEMPLATE"),
+            icon: (
+              <HiOutlineDocumentDuplicate className="h-[16px] w-[16px] text-dark-900" />
+            ),
+          },
+        ]
+      : []),
+    ...(!isTemplate && canEditBoard
+      ? [
+          {
+            label: t`Create Project Wiki`,
+            action: () => ensureProjectWiki.mutate({ boardPublicId }),
             icon: (
               <HiOutlineDocumentDuplicate className="h-[16px] w-[16px] text-dark-900" />
             ),
@@ -162,7 +197,9 @@ export default function BoardDropdown({
 
   return (
     <Dropdown
-      disabled={isLoading || isArchiveActionPending}
+      disabled={
+        isLoading || isArchiveActionPending || ensureProjectWiki.isPending
+      }
       items={items}
       ariaLabel={t`Board options`}
       menuGap="md"
