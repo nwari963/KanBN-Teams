@@ -27,6 +27,7 @@ A running, branded **OTSICAL** stack on the studio laptop: Kan (LAN-reachable at
 - [Stand up Outline service](./tickets/009-stand-up-outline.md): Outline live and healthy at `:3458`, Dex OIDC healthy at `:3459/dex`; Postgres 16 + Redis + local attachments; credentials remain local.
 - Identity: LLDAP is the shared directory behind Dex for Kan and Outline; Kan passwords remain during migration, and Cal.diy keeps separate credentials.
 - [Shared identity directory](./tickets/011-shared-identity-directory.md): LLDAP directory behind Dex; migration and rollback checks are specified, implementation pending.
+- [Deliver the Project Wiki MVP](./tickets/012-project-wiki-mvp.md): implementation and identity migration are committed; database rollout, report review, end-to-end checks, and teammate handoff remain.
 - [Outline self-host footprint](./tickets/008-outline-footprint.md): 4 containers (outline+pg+redis+dex, port 3458), local file storage, no SMTP; Dex static-password OIDC is the only offline auth; ARM64 confirmed; ~550MB RAM idle.
 - [002] Cal bookings → Kan: use Cal webhook → small receiver → Kan REST `POST /api/v1/cards` (API key). Skip MCP and direct DB writes. See `docs/research/cal-diy-integration.md`.
 - [Cal.diy self-host footprint](./tickets/001-cal-diy-footprint.md): GO (conditional). Minimal 2 services: cal-diy-db + cal-diy on port 3050; MIT fork; no prebuilt images, so build once locally on arm64 (~20–45 min, 4–6 GB peak; ~1.5 GB steady). Detail: `docs/research/cal-diy-selfhost.md`.
@@ -38,6 +39,7 @@ A running, branded **OTSICAL** stack on the studio laptop: Kan (LAN-reachable at
 - [Verify Kan LAN stack and onboard first teammate](./tickets/003-verify-kan-onboard.md)
 - [Stand up Cal.diy service](./tickets/007-stand-up-cal.md) *(unblocked: research done)*
 - [Shared identity directory](./tickets/011-shared-identity-directory.md)
+- [Deliver the Project Wiki MVP](./tickets/012-project-wiki-mvp.md)
 
 ## Not yet specified
 - Client-facing booking flows (event types for clients, approvals) — after internal scheduling proves out.
