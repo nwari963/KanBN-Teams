@@ -20,6 +20,7 @@ A running, branded **OTSICAL** stack on the studio laptop: Kan (LAN-reachable at
 
 ## Decisions so far
 
+- [Stand up Cal.diy service](./tickets/007-stand-up-cal.md): running via `docker-compose.cal.yml` on port 3457 with own Postgres, healthy (`caldiy:local` + postgres:16-alpine); first-run setup wizard serves 200. Env in ignored `0600` `.env.cal` with LAN URL `http://192.168.1.125:3457`. See ticket Resolution.
 - [Integration contract: bookings to boards](./tickets/006-integration-contract.md): create-only Cal webhook bridge to a dedicated Studio Schedule board; UID-idempotent create/update; reschedules preserve workflow, cancellations preserve history; REQUESTED/REJECTED/PAID ignored in v1.
 - [Studio tailoring v1 scope](./tickets/004-tailoring-scope.md): three studio board templates; visible OTSICAL branding; manual DMG updates; colors use existing eight-color palette with soft-surface + strong-accent tokens; optional full-surface list/card colors are independent of labels and require `/to-spec`.
 - [Verify Kan LAN stack and onboard first teammate](./tickets/003-verify-kan-onboard.md): Kan live + admin account created (verified in DB); invite-link onboarding deferred to tailoring (SMTP off, invite links upstream-gated).
@@ -37,7 +38,6 @@ A running, branded **OTSICAL** stack on the studio laptop: Kan (LAN-reachable at
 - [Cal.diy self-host footprint](./tickets/001-cal-diy-footprint.md)
 - [Cal.diy-OTSICAL integration surface](./tickets/002-integration-surface.md)
 - [Verify Kan LAN stack and onboard first teammate](./tickets/003-verify-kan-onboard.md)
-- [Stand up Cal.diy service](./tickets/007-stand-up-cal.md) *(unblocked: research done)*
 - [Shared identity directory](./tickets/011-shared-identity-directory.md)
 - [Deliver the Project Wiki MVP](./tickets/012-project-wiki-mvp.md)
 
