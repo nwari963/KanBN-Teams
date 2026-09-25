@@ -19,7 +19,7 @@ Hand the OTSICAL team a working Kan-to-Outline Project Wiki flow. A teammate can
 - [x] Project Wiki integration implemented in `1db7c637` (`feat: add Outline project wiki MVP integration`).
 - [x] Stable template identity, migration report, and identity propagation implemented and pushed in `f01d590a` (`feat: persist studio template identity for project wikis`).
 - [x] Classifier tests, shared/DB typechecks, Drizzle check, formatting, and diff checks passed. API typecheck passed with `--jsx react-jsx`; the standard API typecheck and lint still have previously recorded workspace issues.
-- [ ] Database migration not yet applied; its classification report has not been reviewed.
+- [x] Database migration applied to the studio database; classification report reviewed (Art/Software/Production classified, legacy `pROJECT` skipped as `unsupported-name`).
 - [ ] Runtime Kan/Outline flow and teammate access not yet verified for this release.
 
 ## Build and release plan
@@ -38,11 +38,22 @@ Hand the OTSICAL team a working Kan-to-Outline Project Wiki flow. A teammate can
 - [x] Apply `packages/db/migrations/20260923145321_AddBoardTemplateIdentity.sql` to a development/test clone first.
 - [x] Review `board_template_identity_migration_report`: the clone found one active template, skipped as `unsupported-name`, and classified none of the supported identities.
 - [x] Stop before migrating the studio database because the canonical Art, Software, and Production templates are not present in the current Kan database.
-- [ ] Apply the migration to the studio database and review its report using the same checks.
+- [x] Apply the migration to the studio database and review its report using the same checks (2026-09-25 — see progress log; 3 classified, 1 skipped).
 
 **Exit check:** the studio database has one intended canonical template for each supported identity, and all rejected/skipped records are understood.
 
 ## Progress log
+
+### 2026-09-25 — Canonical templates created; identity migration applied
+
+- Created the three canonical templates through Kan's own tRPC `board.create` (the same code path the app UI uses; no direct SQL), authenticated as the admin via the app's email/password flow:
+  - `Art` (`t9me4j7rzlg9`): Sketch · Blockout · Render · Review · Done
+  - `Software` (`gqvmyuoep8ny`): Backlog · Doing · Review · Done
+  - `Production` (`1qknivt817j1`): Planned · Booked · Captured · Editing · Delivered
+- Rotated the Kan admin password for `kunwari.kunwari@gmail.com` (approved): generated a Better Auth 1.4.6-compatible hash using the app's own `hashPassword` (scrypt N=16384 r=16 p=1 dkLen=64, `salt:key` hex) and updated the `account` row; sign-in verified. New value recorded only in ignored local `.env` as `KAN_ADMIN_PASSWORD`.
+- Fresh owner-only backup `kan_db_pre_migration_20260924_200221.dump` in `~/otsical-backups/` (0600).
+- Applied `20260923145321_AddBoardTemplateIdentity.sql` to the studio DB via the compose `migrate` stage. First attempt falsely reported success: the `kanbn/kan-migrate:latest` image was 3 days old and its baked-in journal predated the migration file (36 entries vs the DB's 36 applied → nothing pending). Rebuilt the `migrate` stage and re-ran; this time it applied and recorded tracking row 37 (previous rows 36 remained).
+- Report reviewed: `Art`→classified/art, `Software`→classified/software, `Production`→classified/production, legacy `pROJECT`→skipped/unsupported-name. Board `templateIdentity` values backfilled accordingly. Kan serves 200 after the schema change.
 
 ### 2026-09-25 — Outline side configured, Kan env wired
 
@@ -64,7 +75,7 @@ Hand the OTSICAL team a working Kan-to-Outline Project Wiki flow. A teammate can
 
 The implementation is ready for environment setup; release verification is waiting on these operator steps:
 
-1. In Kan, create the three canonical templates through the normal app interface:
+1. **Done (2026-09-25):** created the three canonical templates through Kan's own `board.create` API (same code path as the UI):
    - `Art`: Sketch → Blockout → Render → Review → Done
    - `Software`: Backlog → Doing → Review → Done
    - `Production`: Planned → Booked → Captured → Editing → Delivered
