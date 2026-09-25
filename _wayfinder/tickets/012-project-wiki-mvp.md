@@ -44,6 +44,22 @@ Hand the OTSICAL team a working Kan-to-Outline Project Wiki flow. A teammate can
 
 ## Progress log
 
+### 2026-09-25 — Section 4 failure recovery and provenance passed (isolated env)
+
+Ran all three checks in a **fully isolated** environment so the live studio DB, live templates, and the real Outline instance were never touched:
+
+- Cloned the Kan DB to a disposable `kan_s4_test` (pg_dump/restore) and ran a second `kan-web` container (`kan-s4-web`, port 3466) on the Kan compose network against that clone, with a real admin session.
+- Stood up a **fake Outline** (minimal Node server, port 3499) implementing `documents.list/create/info/update` with faithful response shapes (relative `url`, title, `publish` semantics) plus a `/_state` endpoint to count documents and create calls. This let "Outline down/up" be toggled deterministically without touching the live Outline.
+- Retry path: `board.ensureProjectWiki` mutation (re-runs `attachProjectWiki` for a regular board carrying a `templateIdentity`).
+
+Results:
+- **Outline down during create:** `board.create` returned 200, the board persisted with `templateIdentity=art`, wiki reported `{status:"failed", message:"fetch failed"}`, and no Project Wiki card was created.
+- **Restore + retry (idempotency):** after bringing Outline up, three `ensureProjectWiki` calls each returned `{status:"created"}` with a stable URL; the fake Outline held exactly **1** document (found by title on `documents.list`, so `documents.create` was never called again) and the board had exactly **1** Project Wiki card.
+- **Provenance independence:** derived a `software` board while Outline was down (wiki pending, identity copied from source), then **renamed** the source template to `Zzz Unknown Source` and **soft-deleted** it. With Outline back up, `ensureProjectWiki` on the derived board still returned `{status:"created"}`, created the doc, and added the card — proving eligibility comes from the board's **copied identity**, not the source's name or existence.
+- **Guard check:** calling `ensureProjectWiki` on the Art **template** board itself returned 404 / created no card — templates are not eligible, only derived project boards.
+
+Teardown verified: fake Outline stopped, `kan-s4-web` removed, `kan_s4_test` dropped, live `kan_db` untouched (all E2E/test boards soft-deleted; the 4 canonical templates intact; Kan :3456 and Outline :3458 healthy).
+
 ### 2026-09-25 — Section 3 E2E passed; two implementation bugs fixed
 
 The end-to-end run initially failed and exposed two real defects, both now fixed and re-verified:
@@ -124,9 +140,9 @@ Run the flow from Kan as the intended teammate, once for each supported template
 
 ### 4. Verify failure recovery and provenance
 
-- [ ] In a safe test environment, make Outline unavailable during board creation; confirm the Kan board still exists and wiki creation reports failure.
-- [ ] Restore Outline and retry; confirm one document and one Project Wiki card exist after retrying again.
-- [ ] In a safe test environment, rename and then soft-delete the source template; confirm the already-derived project remains eligible for wiki retry from its copied identity.
+- [x] In a safe test environment, make Outline unavailable during board creation; confirm the Kan board still exists and wiki creation reports failure.
+- [x] Restore Outline and retry; confirm one document and one Project Wiki card exist after retrying again.
+- [x] In a safe test environment, rename and then soft-delete the source template; confirm the already-derived project remains eligible for wiki retry from its copied identity.
 
 **Exit check:** retries are idempotent, board creation survives Outline failure, and derived-board eligibility does not depend on the source template's current name or existence.
 
