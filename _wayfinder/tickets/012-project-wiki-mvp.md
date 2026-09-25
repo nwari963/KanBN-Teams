@@ -148,9 +148,33 @@ Run the flow from Kan as the intended teammate, once for each supported template
 
 ### 5. Handoff
 
-- [ ] Record the migration date, reviewed report outcome, and runtime acceptance results here without adding credentials.
+- [x] Record the migration date, reviewed report outcome, and runtime acceptance results here without adding credentials.
 - [ ] Give the intended teammate the Kan board entry point and verify they can open and edit the Project Wiki.
 - [ ] Set status to `closed` only after all release checks pass.
+
+#### Acceptance record
+
+**Migration**
+- File: `packages/db/migrations/20260923145321_AddBoardTemplateIdentity.sql`
+- Applied to the studio DB: **2026-09-25**, via the compose `migrate` stage (image rebuilt first — the prior 3-day-old image reported a false success from a stale baked-in journal).
+- Tracking row 37 recorded; the 36 pre-existing rows were left intact.
+- Pre-migration backup: `~/otsical-backups/kan_db_pre_migration_20260924_200221.dump` (owner-only, 0600).
+
+**Reviewed migration report**
+- `Art` → `classified` / `art` (Sketch · Blockout · Render · Review · Done)
+- `Software` → `classified` / `software` (Backlog · Doing · Review · Done)
+- `Production` → `classified` / `production` (Planned · Booked · Captured · Editing · Delivered)
+- `pROJECT` (legacy) → `skipped` / `unsupported-name` — expected; not a supported studio template.
+- No `ambiguous` or `wrong-list-structure` outcomes. `templateIdentity` backfilled on all templates.
+
+**Runtime acceptance**
+- **Section 3 (end-to-end, live studio stack):** all 7 checks pass for all three identities. A board created from each canonical template receives its copied `templateIdentity` and a `Project Wiki` card in its first list; each card opens a published Outline document in the **Project Wiki** collection containing Overview / Decisions / Notes / References plus a backlink to the same Kan board; an edit to a section persisted across reload. This run also surfaced and fixed two integration defects (relative wiki URL caused a 500; Outline docs were created as untitled, unpublished drafts) — committed `f2763679`.
+- **Section 4 (failure recovery + provenance, isolated env):** all 3 checks pass. Board creation survives an Outline outage (board persists, wiki reports `failed`, no orphan card); retries are idempotent (exactly one document and one card after repeated retries); and a derived board stays wiki-eligible after its source template is renamed and soft-deleted, confirming eligibility is read from the board's own copied identity. The template board itself remains ineligible. All of this ran in a disposable environment (cloned DB + throwaway Kan container + fake Outline); the live studio DB, the live templates, and the real Outline instance were not modified.
+
+**Outstanding before closure**
+- Teammate sign-in walkthrough: the intended teammate opens a Kan board entry point and confirms they can open and edit its Project Wiki. This is the only remaining release check; the ticket stays `in-progress` until it passes.
+
+**Credentials note:** no passwords, API keys, session tokens, or connection strings are recorded in this ticket. Secret values live only in ignored local env files.
 
 ## Release boundary
 
