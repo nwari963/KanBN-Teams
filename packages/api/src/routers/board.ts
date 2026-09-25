@@ -1,12 +1,14 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import type { BoardTemplateIdentity } from "@kan/db/schema";
 import * as boardRepo from "@kan/db/repository/board.repo";
 import * as cardRepo from "@kan/db/repository/card.repo";
 import * as activityRepo from "@kan/db/repository/cardActivity.repo";
 import * as labelRepo from "@kan/db/repository/label.repo";
 import * as listRepo from "@kan/db/repository/list.repo";
 import * as workspaceRepo from "@kan/db/repository/workspace.repo";
+import { createLogger } from "@kan/logger";
 import { colours } from "@kan/shared/constants";
 import {
   convertDueDateFiltersToRanges,
@@ -14,16 +16,94 @@ import {
   generateUID,
 } from "@kan/shared/utils";
 
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
-  boardListItemSchema,
-  boardDetailSchema,
   boardBySlugSchema,
   boardCreateResponseSchema,
+  boardDetailSchema,
+  boardListItemSchema,
   boardUpdateResponseSchema,
 } from "../schemas";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { createAvatarUrlResolver } from "../utils/avatarUrls";
-import { assertCanDelete, assertCanEdit, assertPermission } from "../utils/permissions";
+import { createProjectWiki } from "../utils/outline";
+import {
+  assertCanDelete,
+  assertCanEdit,
+  assertPermission,
+} from "../utils/permissions";
+
+const log = createLogger("board");
+
+const attachProjectWiki = async (
+  db: Parameters<typeof boardRepo.getByPublicId>[0],
+  userId: string,
+  workspace: { id: number; slug: string },
+  board: { publicId: string; name: string },
+  templateIdentity?: BoardTemplateIdentity | null,
+  details?: Awaited<ReturnType<typeof boardRepo.getByPublicId>>,
+) => {
+  if (!templateIdentity)
+    return { ...board, wiki: { status: "disabled" as const } };
+
+  const boardDetails =
+    details ??
+    (await boardRepo.getByPublicId(db, board.publicId, userId, {
+      members: [],
+      labels: [],
+      lists: [],
+      dueDate: [],
+      type: undefined,
+    }));
+  const firstList = boardDetails?.lists[0];
+  const list = firstList
+    ? await listRepo.getByPublicId(db, firstList.publicId)
+    : undefined;
+
+  if (!boardDetails || !firstList || !list) {
+    return {
+      ...board,
+      wiki: {
+        status: "failed" as const,
+        message: "The board has no list for the Project Wiki card.",
+      },
+    };
+  }
+
+  const boardUrl = `${process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"}/${workspace.slug}/${boardDetails.slug}`;
+  const wiki = await createProjectWiki({ boardName: board.name, boardUrl });
+
+  if (wiki.status === "created") {
+    const hasWikiCard = boardDetails.lists.some((currentList) =>
+      currentList.cards.some((card) => card.title === "Project Wiki"),
+    );
+
+    if (!hasWikiCard) {
+      try {
+        await cardRepo.create(db, {
+          title: "Project Wiki",
+          description: `[Open Project Wiki](${wiki.url})`,
+          createdBy: userId,
+          listId: list.id,
+          workspaceId: workspace.id,
+          position: "end",
+        });
+      } catch (error) {
+        log.warn(
+          { err: error, boardPublicId: board.publicId },
+          "Project Wiki card creation failed",
+        );
+      }
+    }
+  }
+
+  return {
+    ...board,
+    wiki:
+      wiki.status === "created"
+        ? { status: "created" as const, url: wiki.url }
+        : wiki,
+  };
+};
 
 export const boardRouter = createTRPCRouter({
   all: protectedProcedure
@@ -74,7 +154,7 @@ export const boardRouter = createTRPCRouter({
         {
           type: input.type,
           archived: input.archived ?? false,
-        }
+        },
       );
 
       return result;
@@ -164,24 +244,24 @@ export const boardRouter = createTRPCRouter({
       // Generate presigned URLs for workspace member avatars
       const workspaceWithAvatarUrls = result.workspace
         ? {
-          ...result.workspace,
-          members: await Promise.all(
-            result.workspace.members.map(async (member) => {
-              if (!member.user?.image) {
-                return member;
-              }
+            ...result.workspace,
+            members: await Promise.all(
+              result.workspace.members.map(async (member) => {
+                if (!member.user?.image) {
+                  return member;
+                }
 
-              const avatarUrl = await resolveAvatarUrl(member.user.image);
-              return {
-                ...member,
-                user: {
-                  ...member.user,
-                  image: avatarUrl,
-                },
-              };
-            }),
-          ),
-        }
+                const avatarUrl = await resolveAvatarUrl(member.user.image);
+                return {
+                  ...member,
+                  user: {
+                    ...member.user,
+                    image: avatarUrl,
+                  },
+                };
+              }),
+            ),
+          }
         : result.workspace;
 
       // Generate presigned URLs for card member avatars
@@ -393,9 +473,21 @@ export const boardRouter = createTRPCRouter({
           name: input.name,
           type: input.type ?? "regular",
           sourceBoardId: sourceBoardInfo.id,
+          templateIdentity:
+            input.type === "template"
+              ? undefined
+              : (sourceBoardInfo.templateIdentity ?? undefined),
         });
 
-        return result;
+        return attachProjectWiki(
+          ctx.db,
+          userId,
+          workspace,
+          result,
+          input.type === "template"
+            ? undefined
+            : sourceBoardInfo.templateIdentity,
+        );
       }
 
       // Otherwise, create a new board with provided lists and labels
@@ -448,7 +540,69 @@ export const boardRouter = createTRPCRouter({
         await labelRepo.bulkCreate(ctx.db, labelInputs);
       }
 
-      return result;
+      return attachProjectWiki(ctx.db, userId, workspace, result);
+    }),
+  ensureProjectWiki: protectedProcedure
+    .input(z.object({ boardPublicId: z.string().min(12) }))
+    .output(boardCreateResponseSchema)
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.user?.id;
+      if (!userId) {
+        throw new TRPCError({
+          message: "User not authenticated",
+          code: "UNAUTHORIZED",
+        });
+      }
+
+      const board = await boardRepo.getWorkspaceAndBoardIdByBoardPublicId(
+        ctx.db,
+        input.boardPublicId,
+      );
+      if (!board) {
+        throw new TRPCError({
+          message: `Board with public ID ${input.boardPublicId} not found`,
+          code: "NOT_FOUND",
+        });
+      }
+
+      await assertPermission(ctx.db, userId, board.workspaceId, "board:edit");
+      const workspace = await workspaceRepo.getById(ctx.db, board.workspaceId);
+      const details = await boardRepo.getByPublicId(
+        ctx.db,
+        input.boardPublicId,
+        userId,
+        {
+          members: [],
+          labels: [],
+          lists: [],
+          dueDate: [],
+          type: undefined,
+        },
+      );
+
+      if (!workspace || !details) {
+        throw new TRPCError({
+          message: `Board with public ID ${input.boardPublicId} not found`,
+          code: "NOT_FOUND",
+        });
+      }
+
+      if (board.type !== "regular" || !board.templateIdentity) {
+        return {
+          publicId: details.publicId,
+          name: details.name,
+          wiki: { status: "disabled" as const },
+        };
+      }
+
+      return attachProjectWiki(
+        ctx.db,
+        userId,
+        workspace,
+        { publicId: details.publicId, name: details.name },
+        board.templateIdentity,
+        details,
+      );
     }),
   update: protectedProcedure
     .meta({
@@ -515,7 +669,11 @@ export const boardRouter = createTRPCRouter({
       }
 
       // Handle other updates (name, slug, visibility)
-      const hasOtherUpdates = input.name || input.slug || input.visibility !== undefined || input.isArchived !== undefined;
+      const hasOtherUpdates =
+        input.name ||
+        input.slug ||
+        input.visibility !== undefined ||
+        input.isArchived !== undefined;
 
       if (!hasOtherUpdates) {
         // Only favorite was updated, return success
