@@ -2,6 +2,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createProjectWiki } from "./outline";
 
+const parseRequestBody = (body: unknown): Record<string, unknown> => {
+  if (typeof body !== "string") return {};
+  return JSON.parse(body) as Record<string, unknown>;
+};
+
 describe("createProjectWiki", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -49,16 +54,17 @@ describe("createProjectWiki", () => {
       url: "http://outline.local/doc/doc-1",
     });
 
-    expect(fetch).toHaveBeenCalledWith(
-      "http://outline.local/api/documents.create",
-      expect.objectContaining({
-        method: "POST",
-        headers: expect.objectContaining({
-          Authorization: "Bearer secret",
-        }),
-        body: expect.stringContaining('"title":"Art — Project Wiki"'),
-      }),
-    );
+    const createCall = vi.mocked(fetch).mock.calls[1];
+    expect(createCall?.[0]).toBe("http://outline.local/api/documents.create");
+
+    const init = createCall?.[1];
+    expect(init?.method).toBe("POST");
+
+    const headers = init?.headers as Record<string, string> | undefined;
+    expect(headers?.Authorization).toBe("Bearer secret");
+
+    const body = parseRequestBody(init?.body);
+    expect(body.title).toBe("Art — Project Wiki");
   });
 
   it("creates the document with a title and publishes it", async () => {
@@ -86,7 +92,7 @@ describe("createProjectWiki", () => {
     });
 
     const createCall = vi.mocked(fetch).mock.calls[1];
-    const body = JSON.parse(String(createCall?.[1]?.body));
+    const body = parseRequestBody(createCall?.[1]?.body);
     expect(body.title).toBe("Art — Project Wiki");
     expect(body.publish).toBe(true);
     expect(body.name).toBeUndefined();
@@ -130,22 +136,20 @@ describe("createProjectWiki", () => {
     vi.stubEnv("OUTLINE_COLLECTION_ID", "collection");
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValueOnce(
-          new Response(
-            JSON.stringify({
-              data: [
-                {
-                  id: "doc-1",
-                  title: "Art — Project Wiki",
-                  url: "/doc/doc-1",
-                },
-              ],
-            }),
-            { status: 200 },
-          ),
+      vi.fn().mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            data: [
+              {
+                id: "doc-1",
+                title: "Art — Project Wiki",
+                url: "/doc/doc-1",
+              },
+            ],
+          }),
+          { status: 200 },
         ),
+      ),
     );
 
     await expect(

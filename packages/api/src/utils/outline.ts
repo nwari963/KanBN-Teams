@@ -2,10 +2,10 @@ import { createLogger } from "@kan/logger";
 
 const log = createLogger("outline");
 
-type OutlineDocument = {
+interface OutlineDocument {
   id: string;
   url?: string;
-};
+}
 
 export type ProjectWikiResult =
   | { status: "disabled" }
@@ -22,9 +22,16 @@ const getConfig = () => {
   // Client-facing URL used for wiki links embedded in Kan cards. Outline's
   // API returns document URLs as relative paths (e.g. "/doc/<id>"); they are
   // absolutized against this when OUTLINE_URL is not directly reachable by
-  // clients (e.g. when it points at host.docker.internal).
+  // clients (e.g. when it points at host.docker.internal). An unset *or empty*
+  // OUTLINE_PUBLIC_URL falls back to OUTLINE_URL.
+  const configuredPublicUrl = process.env.OUTLINE_PUBLIC_URL?.replace(
+    /\/$/,
+    "",
+  );
   const publicUrl =
-    process.env.OUTLINE_PUBLIC_URL?.replace(/\/$/, "") || baseUrl;
+    configuredPublicUrl !== undefined && configuredPublicUrl !== ""
+      ? configuredPublicUrl
+      : baseUrl;
 
   return { baseUrl, publicUrl, apiKey, collectionId };
 };
