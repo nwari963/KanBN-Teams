@@ -28,7 +28,7 @@ Hand the OTSICAL team a working Kan-to-Outline Project Wiki flow. A teammate can
 
 - [x] Confirm the local Kan target (`kan_db`) and service state; Kan responds on `:3456` and Outline responds on `:3458` after being recreated from the current compose file.
 - [x] Create owner-only local backups of the Kan and Outline databases before migration or Outline startup.
-- [ ] Confirm Kan has valid `OUTLINE_URL`, `OUTLINE_API_KEY`, and `OUTLINE_COLLECTION_ID` values. Verify presence and access without recording secrets in this ticket.
+- [x] Confirm Kan has valid `OUTLINE_URL`, `OUTLINE_API_KEY`, and `OUTLINE_COLLECTION_ID` values. Verify presence and access without recording secrets in this ticket.
 - [ ] Confirm the intended teammate can sign in to both Kan and Outline.
 
 **Exit check:** Kan can reach the configured Outline instance and the target database is recoverable.
@@ -43,6 +43,13 @@ Hand the OTSICAL team a working Kan-to-Outline Project Wiki flow. A teammate can
 **Exit check:** the studio database has one intended canonical template for each supported identity, and all rejected/skipped records are understood.
 
 ## Progress log
+
+### 2026-09-25 — Outline side configured, Kan env wired
+
+- Outline: rotated the Dex static-password hash for `nwari@otsical.local` to bcrypt **cost 10** (Dex rejects hashes below cost 10 with `given hash cost = 5 does not meet minimum cost requirement = 10`). The new password value is stored only in ignored `0600`.env.outline` as `DEX_USER_PASSWORD`; the old static password is no longer valid.
+- Outline: created collection **Project Wiki** (id `76c644ed-dd29-46e0-b2fc-fc6ff47b6eef`, url `/collection/project-wiki-rlyO7xgnUw`) and minted API key **kan-sync** for Kan. Key value exists only in the local environment, not in this ticket.
+- Kan: added `OUTLINE_URL=http://host.docker.internal:3458` (Kan's web container cannot resolve mDNS or the Outline service name — the two stacks are on separate compose networks — but `host.docker.internal:3458` reaches Outline), `OUTLINE_API_KEY`, and `OUTLINE_COLLECTION_ID` to the local `.env` (ignored) and recreated `web`. Verified from inside the container with its own env: `POST /api/documents.list` against the configured collection returns 200 (currently 0 documents).
+- Still missing for migration + E2E: the three canonical Kan templates (operator step below) and teammate sign-in confirmation.
 
 ### 2026-09-23 — Environment preflight
 
@@ -61,9 +68,8 @@ The implementation is ready for environment setup; release verification is waiti
    - `Art`: Sketch → Blockout → Render → Review → Done
    - `Software`: Backlog → Doing → Review → Done
    - `Production`: Planned → Booked → Captured → Editing → Delivered
-2. In Outline, create/select the Project Wiki collection and generate an API key for Kan.
-3. Set `OUTLINE_URL`, `OUTLINE_API_KEY`, and `OUTLINE_COLLECTION_ID` in the local Kan environment, then restart Kan. Keep secret values in ignored local config; do not paste them into this ticket or commit them.
-4. Confirm the intended teammate can sign in to Kan and Outline.
+2. **Done (2026-09-25):** Outline collection `Project Wiki` + API key `kan-sync` exist; Kan env (`OUTLINE_URL` via `host.docker.internal`, `OUTLINE_API_KEY`, `OUTLINE_COLLECTION_ID`) is set in the local `.env` and Kan `web` was recreated; verified `documents.list` returns 200 from inside the Kan container.
+3. Confirm the intended teammate can sign in to both Kan and Outline.
 
 Resume here when the templates exist and Kan has the three integration settings. First take a fresh Kan database backup, apply the migration, and inspect its report; continue to end-to-end verification only if each supported identity is classified as expected. The disposable-clone check passed, but the clone predates the canonical templates. Avoid direct SQL seeding of live templates.
 
