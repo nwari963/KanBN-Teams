@@ -18,7 +18,25 @@ const getConfig = () => {
   const collectionId = process.env.OUTLINE_COLLECTION_ID;
 
   if (!baseUrl || !apiKey || !collectionId) return null;
-  return { baseUrl, apiKey, collectionId };
+
+  // Client-facing URL used for wiki links embedded in Kan cards. Outline's
+  // API returns document URLs as relative paths (e.g. "/doc/<id>"); they are
+  // absolutized against this when OUTLINE_URL is not directly reachable by
+  // clients (e.g. when it points at host.docker.internal).
+  const publicUrl =
+    process.env.OUTLINE_PUBLIC_URL?.replace(/\/$/, "") || baseUrl;
+
+  return { baseUrl, publicUrl, apiKey, collectionId };
+};
+
+const toAbsoluteDocumentUrl = (
+  url: string | undefined,
+  documentId: string,
+  publicUrl: string,
+) => {
+  if (!url) return `${publicUrl}/doc/${documentId}`;
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${publicUrl}${url.startsWith("/") ? url : `/${url}`}`;
 };
 
 export const createProjectWiki = async (input: {
@@ -46,16 +64,20 @@ export const createProjectWiki = async (input: {
 
     if (existingResponse.ok) {
       const existingPayload = (await existingResponse.json()) as {
-        data?: { id: string; name: string; url?: string }[];
+        data?: { id: string; title: string; url?: string }[];
       };
       const existing = existingPayload.data?.find(
-        (document) => document.name === `${input.boardName} — Project Wiki`,
+        (document) => document.title === `${input.boardName} — Project Wiki`,
       );
       if (existing) {
         return {
           status: "created",
           documentId: existing.id,
-          url: existing.url ?? `${config.baseUrl}/doc/${existing.id}`,
+          url: toAbsoluteDocumentUrl(
+            existing.url,
+            existing.id,
+            config.publicUrl,
+          ),
         };
       }
     }
@@ -68,7 +90,8 @@ export const createProjectWiki = async (input: {
       },
       body: JSON.stringify({
         collectionId: config.collectionId,
-        name: `${input.boardName} — Project Wiki`,
+        title: `${input.boardName} — Project Wiki`,
+        publish: true,
         text: [
           `# ${input.boardName}`,
           "",
@@ -105,7 +128,7 @@ export const createProjectWiki = async (input: {
     return {
       status: "created",
       documentId: document.id,
-      url: document.url ?? `${config.baseUrl}/doc/${document.id}`,
+      url: toAbsoluteDocumentUrl(document.url, document.id, config.publicUrl),
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";

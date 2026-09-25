@@ -83,6 +83,7 @@ export const env = createEnv({
     OUTLINE_URL: z.string().url().optional(),
     OUTLINE_API_KEY: z.string().optional(),
     OUTLINE_COLLECTION_ID: z.string().optional(),
+    OUTLINE_PUBLIC_URL: z.string().url().optional(),
   },
 
   /**

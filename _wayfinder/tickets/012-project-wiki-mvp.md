@@ -44,6 +44,30 @@ Hand the OTSICAL team a working Kan-to-Outline Project Wiki flow. A teammate can
 
 ## Progress log
 
+### 2026-09-25 — Section 3 E2E passed; two implementation bugs fixed
+
+The end-to-end run initially failed and exposed two real defects, both now fixed and re-verified:
+
+1. **Stale image (environment, not code).** The first attempt returned 200 but produced boards with `templateIdentity = NULL` and no wiki at all: the running `ghcr.io/kanbn/kan:latest` was built 2026-09-22 and contained none of the Project Wiki code (`attachProjectWiki` absent). Same 3-day-stale-image trap already seen with the `migrate` stage. Rebuilt `web` from the repo and recreated the container.
+2. **Relative wiki URL → 500 (code).** After the rebuild, `board.create` returned 500 `Output validation failed: wiki.url "Invalid url"`. Outline's `documents.create` returns document URLs as **relative** paths (`/doc/<id>`), but `boardCreateResponseSchema` requires `z.string().url()`. Fixed by absolutizing in `packages/api/src/utils/outline.ts` via a new `toAbsoluteDocumentUrl` helper.
+3. **Untitled unpublished drafts (code).** The Outline DB inspection showed the "created" docs had **empty titles** and `publishedAt = NULL` — `documents.create` was sent `name` (Outline uses `title`) and no `publish: true`, so Outline created *drafts* named `untitled-…` that never appeared in `documents.list`. Fixed by sending `title` + `publish: true`; the idempotency lookup was also corrected to match on `document.title` (not `name`).
+4. **Client-reachable wiki links.** Wiki URLs are absolutized against a new `OUTLINE_PUBLIC_URL` (falls back to `OUTLINE_URL`). In the studio this is the mDNS name `http://MacBook-Pro-de-Angelo.local:3458`; using the container-local `host.docker.internal` would have produced links teammates cannot open.
+
+Environment/config changes made: `OUTLINE_PUBLIC_URL` added to `apps/web/src/env.ts`, `turbo.json` (globalEnv), `docker-compose.yml` + `cloud/docker-compose.yml` env passthrough, `.env.example`, and the `README.md` env table; local ignored `.env` sets `OUTLINE_PUBLIC_URL=http://MacBook-Pro-de-Angelo.local:3458`.
+
+Verification after the fix (rebuilt + recreated `web`), one board per identity:
+- `board.create` returns 200 with `wiki.status = "created"` and an absolute mDNS URL for all three (art / software / production).
+- DB confirms each derived board carries `templateIdentity` = `art` / `software` / `production` (lowercase) and `sourceBoardId` set.
+- Each first list contains a `Project Wiki` card whose description links to the Outline doc.
+- All three docs are now **published** in the Project Wiki collection, contain Overview/Decisions/Notes/References, and each backlinks to its Kan board (`http://MacBook-Pro-de-Angelo.local:3456/drsbwigeybcj/<slug>`).
+- `documents.update` of the Notes section persisted across a re-read (`documents.info`); the edit was then reverted to leave the doc pristine.
+
+Unit tests: `packages/api/src/utils/outline.test.ts` extended to cover the title/publish fields, relative-URL absolutization (server vs public URL), and title-based idempotency — 5/5 pass. Outline typecheck clean (remaining `@kan/api` and `@kan/web` type errors are pre-existing and unrelated: `@kan/email` `--jsx`, missing `~/assets/logos/*.svg`, bootstrap.cjs).
+
+Note for the record: the very first web-image rebuild failed at `@kan/api#build` because editing `turbo.json` (globalEnv) invalidated turbo's cache, exposing a latent build-ordering issue where `@kan/api` `tsc` resolved `@kan/email` through the `exports` fallback to `src/index.tsx` before `@kan/email`'s `dist` was built (TS6142, `--jsx` not set). Building `@kan/email` first (producing `dist`) makes `@kan/api build` pass; the second build produced 9/9 successful tasks.
+
+Section 3 exit check: **all three supported workflows pass** (run as the admin account, the only Kan user; teammate sign-in confirmation remains a separate operator step).
+
 ### 2026-09-25 — Canonical templates created; identity migration applied
 
 - Created the three canonical templates through Kan's own tRPC `board.create` (the same code path the app UI uses; no direct SQL), authenticated as the admin via the app's email/password flow:
@@ -88,13 +112,13 @@ Resume here when the templates exist and Kan has the three integration settings.
 
 Run the flow from Kan as the intended teammate, once for each supported template identity:
 
-- [ ] Create a project board from the canonical Art template.
-- [ ] Create a project board from the canonical Software template.
-- [ ] Create a project board from the canonical Production template.
-- [ ] Confirm each derived board receives its template identity and a Project Wiki card in its first list.
-- [ ] Confirm each card opens the matching Outline document in the configured collection.
-- [ ] Confirm the document contains Overview, Decisions, Notes, and References sections plus a backlink to the same Kan board.
-- [ ] Edit a section in Outline and confirm the edit persists after reload.
+- [x] Create a project board from the canonical Art template.
+- [x] Create a project board from the canonical Software template.
+- [x] Create a project board from the canonical Production template.
+- [x] Confirm each derived board receives its template identity and a Project Wiki card in its first list.
+- [x] Confirm each card opens the matching Outline document in the configured collection.
+- [x] Confirm the document contains Overview, Decisions, Notes, and References sections plus a backlink to the same Kan board.
+- [x] Edit a section in Outline and confirm the edit persists after reload.
 
 **Exit check:** all three supported workflows pass for a real teammate account.
 
