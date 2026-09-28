@@ -79,6 +79,13 @@ export function NewBoardForm({ isTemplate }: { isTemplate?: boolean }) {
           icon: "error",
         });
       } else {
+        if (board.wiki?.status === "failed") {
+          showPopup({
+            header: t`Board created`,
+            message: t`Project Wiki creation failed. You can retry it from the board later.`,
+            icon: "warning",
+          });
+        }
         router.push(
           `${isTemplate ? "/templates" : "/boards"}/${board.publicId}`,
         );

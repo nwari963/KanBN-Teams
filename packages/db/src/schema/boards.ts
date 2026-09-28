@@ -2,6 +2,7 @@ import { relations, sql } from "drizzle-orm";
 import {
   bigint,
   bigserial,
+  boolean,
   index,
   pgEnum,
   pgTable,
@@ -11,8 +12,8 @@ import {
   uniqueIndex,
   uuid,
   varchar,
-  boolean,
 } from "drizzle-orm/pg-core";
+
 import { imports } from "./imports";
 import { labels } from "./labels";
 import { lists } from "./lists";
@@ -29,6 +30,17 @@ export const boardVisibilityEnum = pgEnum(
 export const boardTypes = ["regular", "template"] as const;
 export type BoardType = (typeof boardTypes)[number];
 export const boardTypeEnum = pgEnum("board_type", boardTypes);
+
+export const boardTemplateIdentities = [
+  "art",
+  "software",
+  "production",
+] as const;
+export type BoardTemplateIdentity = (typeof boardTemplateIdentities)[number];
+export const boardTemplateIdentityEnum = pgEnum(
+  "board_template_identity",
+  boardTemplateIdentities,
+);
 
 export const boards = pgTable(
   "board",
@@ -55,6 +67,7 @@ export const boards = pgTable(
       .references(() => workspaces.id, { onDelete: "cascade" }),
     visibility: boardVisibilityEnum("visibility").notNull().default("private"),
     type: boardTypeEnum("type").notNull().default("regular"),
+    templateIdentity: boardTemplateIdentityEnum("templateIdentity"),
     isArchived: boolean("isArchived").notNull().default(false),
     sourceBoardId: bigint("sourceBoardId", { mode: "number" }),
   },
@@ -68,6 +81,32 @@ export const boards = pgTable(
       .where(sql`${table.deletedAt} IS NULL`),
   ],
 ).enableRLS();
+
+export const templateIdentityMigrationOutcomes = [
+  "classified",
+  "skipped",
+  "rejected",
+] as const;
+export const templateIdentityMigrationOutcomeEnum = pgEnum(
+  "template_identity_migration_outcome",
+  templateIdentityMigrationOutcomes,
+);
+
+export const boardTemplateIdentityMigrationReports = pgTable(
+  "board_template_identity_migration_report",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    boardPublicId: varchar("boardPublicId", { length: 12 }).notNull(),
+    boardName: varchar("boardName", { length: 255 }).notNull(),
+    outcome: templateIdentityMigrationOutcomeEnum("outcome").notNull(),
+    identity: boardTemplateIdentityEnum("identity"),
+    reason: text("reason"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+  },
+  (table) => [
+    index("board_template_identity_report_outcome_idx").on(table.outcome),
+  ],
+);
 
 export const boardsRelations = relations(boards, ({ one, many }) => ({
   userFavorites: many(userBoardFavorites),
